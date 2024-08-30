@@ -101,4 +101,47 @@ public class AccountService {
             System.out.println(rs.getInt("account_id")+"       "+rs.getString("account_type")+"  "+rs.getDouble("balance"));
         }
     }
+
+    public static void addAmount(int account_id,int user_id,double amount) throws SQLException {
+        Connection connection = DbConnection.getConnecton();
+        String sql = "UPDATE accounts SET balance=? WHERE account_id = ? AND user_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setDouble(1, getBalance(account_id)+amount);
+            stmt.setInt(3, user_id);
+            stmt.setInt(2, account_id);
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void RemoveAmount(int account_id,int user_id,double amount) throws SQLException {
+        Connection connection = DbConnection.getConnecton();
+        String sql = "UPDATE accounts SET balance=? WHERE account_id = ? AND user_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setDouble(1, getBalance(account_id)-amount);
+            stmt.setInt(3, user_id);
+            stmt.setInt(2, account_id);
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static double getBalance(int accountId) throws SQLException {
+        Connection connection = DbConnection.getConnecton();
+        String sql = "SELECT balance from accounts where account_id=?";
+        PreparedStatement p=connection.prepareStatement(sql);
+        p.setInt(1,accountId);
+        ResultSet rs=p.executeQuery();
+        double bal=0;
+        while(rs.next()){
+            bal=rs.getDouble("balance");
+        }
+        return bal;
+    }
 }

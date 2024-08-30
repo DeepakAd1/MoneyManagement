@@ -83,4 +83,21 @@ public class BudgetSettingService {
         pst.setInt(1,budgetId);
         return pst.executeQuery();
     }
+
+    public static void showUserBudgetFromandTo(int user_id,java.sql.Date st,java.sql.Date ed) throws SQLException {
+        Connection connection=DbConnection.getConnecton();
+        String query = "SELECT b.budget_setting_id, e.category_name, b.budget_amount, b.start_date, b.end_date "  +
+                "FROM budget_setting b " +
+                "JOIN expense_category e ON b.expense_category_id = e.expense_category_id " +
+                "WHERE b.user_id = ? AND start_date=? and end_date=? ";
+        PreparedStatement pst=connection.prepareStatement(query);
+        pst.setInt(1,user_id);
+        pst.setDate(2,st);
+        pst.setDate(3,ed);
+        ResultSet rs=pst.executeQuery();
+        System.out.println("budget_id "+" category_name "+" budget_amount ");
+        while(rs.next()){
+            System.out.println(rs.getInt("budget_setting_id")+"       "+rs.getString("category_name")+"  "+rs.getDouble("budget_amount")+"   "+rs.getDate("start_date")+"  "+rs.getDate("end_date"));
+        }
+    }
 }

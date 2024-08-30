@@ -6,8 +6,7 @@ import java.util.Scanner;
 import java.sql.SQLException;
 import java.util.Date;
 
-import static BudgetManagementServices.AccountService.getAccountId;
-import static BudgetManagementServices.AccountService.showUserAccounts;
+import static BudgetManagementServices.AccountService.*;
 import static BudgetManagementServices.BudgetSettingService.*;
 import static BudgetManagementServices.ExpenseBookmarkService.removeExpenseBookmark;
 import static BudgetManagementServices.ExpenseBookmarkService.showExpenseBookmark;
@@ -74,7 +73,7 @@ public class Main {
 
     // Helper method to perform operations
     public static void performOperations(Scanner scanner, int user_id) throws SQLException {
-        System.out.println("Would you like to Add or Update? (add/update/delete/query)");
+        System.out.println("Would you like to Add or Update or Delete or View? (add/update/delete/view)");
         String action = scanner.next();
 
         if ("add".equalsIgnoreCase(action)) {
@@ -94,9 +93,11 @@ public class Main {
 
             switch (choice) {
                 case 1:
+                    showUserExpenseCategories(user_id);
                     addExpenses(scanner, user_id);
                     break;
                 case 2:
+                    showIncomeCategory(user_id);
                     addIncomes(scanner, user_id);
                     break;
                 case 3:
@@ -106,15 +107,18 @@ public class Main {
                     addIncomeCategory(scanner, user_id);
                     break;
                 case 5:
+                    showUserAccounts(user_id);
                     addAccounts(scanner, user_id);
                     break;
                 case 6:
+                    showUserBudget(user_id);
                     addBudget(scanner, user_id);
                     break;
                 case 7:
                     addExpenseBookmark(scanner, user_id);
                     break;
                 case 8:
+                    showUserGoals(user_id);
                     addGoals(scanner, user_id);
                     break;
                 case 9:
@@ -219,8 +223,11 @@ public class Main {
                     break;
 
             }
-        }else if("query".equalsIgnoreCase(action)){
+        }else if("view".equalsIgnoreCase(action)){
+            boolean ch=true;
 
+            while(ch){
+            System.out.println("--------------------------------------------------------");
             System.out.println(" What would you like to query? ");
             System.out.println("1. View expenses between two dates");
             System.out.println("2. View daily expenses between two dates");
@@ -238,6 +245,8 @@ public class Main {
             System.out.println("10. View income percentages by category between two dates");
 
             System.out.println("11. View Expense Bookmark ");
+            System.out.println("12. View account details ");
+            System.out.println("13. Exit");
 
             int choice = scanner.nextInt();
             scanner.nextLine(); // consume newline
@@ -314,12 +323,13 @@ public class Main {
                     ShowIncomesforCategory(income_cat_id, start_date, end_date);
                     break;
                 case 8:
+
                     System.out.println("Enter a range of date(yyyy-MM-dd) from :");
                     start_date = java.sql.Date.valueOf(scanner.next());
 
                     System.out.println("to date(yyyy-MM-dd) of :");
                     end_date = java.sql.Date.valueOf(scanner.next());
-
+//                    showUserBudgetFromandTo(user_id,start_date,end_date);
                     ShowBudgetResult(user_id,start_date,end_date);
 
                     break;
@@ -341,8 +351,18 @@ public class Main {
 
                     ShowIncomePercentageFromandTo(user_id,start_date,end_date);
                     break;
-
+                case 11:
+                    showExpenseBookmark(user_id);
+                    break;
+                case 12:
+                    showUserAccounts(user_id);
+                    break;
+                case 13:
+                    ch=false;
+                    System.out.println("Exited..");
+                    break;
             }
+        }
         }
 
         else {
@@ -409,6 +429,7 @@ public class Main {
             expense.updatedOn = new Timestamp(System.currentTimeMillis());
 
             expenseService.addExpense(expense);
+            RemoveAmount(expense.account_id,expense.user_id,expense.amount);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -512,6 +533,7 @@ public class Main {
             income.createdOn=new Timestamp(System.currentTimeMillis());
             income.updatedOn = new Timestamp(System.currentTimeMillis());
             incomeService.addIncome(income);
+            addAmount(income.account_id,income.user_id,income.amount);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -745,6 +767,8 @@ public class Main {
 //            scanner.nextLine();
 
             showUserExpenseCategories(user_id);
+            char str='y';
+            while(str!='n'){
             System.out.println("Enter expense category id: ");
             int e_category_id = scanner.nextInt();
             scanner.nextLine();
@@ -767,6 +791,9 @@ public class Main {
 
 
             budgetService.addBudgetSetting(budget);
+            System.out.println("Do you like to add another(y/n) ");
+            str=scanner.next().charAt(0);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

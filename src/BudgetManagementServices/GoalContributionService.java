@@ -3,10 +3,9 @@ package BudgetManagementServices;
 import BudgetManagementClasses.DbConnection;
 import BudgetManagementClasses.GoalContribution;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+
+import static BudgetManagementServices.GoalService.*;
 
 public class GoalContributionService {
 
@@ -21,8 +20,20 @@ public class GoalContributionService {
             stmt.setString(5, contribution.note);
             stmt.setTimestamp(6, new java.sql.Timestamp(contribution.createdOn.getTime()));
             stmt.setTimestamp(7, new java.sql.Timestamp(contribution.updatedOn.getTime()));
-            stmt.executeUpdate();
-            System.out.println("Goal contribution added successfully.");
+
+
+            if(checkGoals(contribution.goal_id,contribution.date)){
+                PreparedStatement stm=connection.prepareStatement("UPDATE goals SET current_amount=? where goal_id=? ");
+                stm.setInt(2,contribution.goal_id);
+                stm.setDouble(1,getCurrAmount(contribution.goal_id)+contribution.amount_contribution);
+                stm.executeUpdate();
+                updateStatus(contribution.goal_id);
+                stmt.executeUpdate();
+                System.out.println("Goal contribution added successfully.");
+            }else{
+                System.out.println("The goal is already accomplished champ!!");
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -30,6 +41,16 @@ public class GoalContributionService {
 
     public void updateGoalContribution(GoalContribution contribution) throws SQLException {
         Connection connection = DbConnection.getConnecton();
+        PreparedStatement p=connection.prepareStatement("Select amount_contribution from goal_contribution where goal_contribution_id=(SELECT max(goal_contribution_id) from goal_contribution )");
+        ResultSet r=p.executeQuery();
+        double amount_contribution=0;
+        while(r.next()){
+            amount_contribution=r.getDouble("amount_contribution");
+        }
+        PreparedStatement stm=connection.prepareStatement("UPDATE goals SET current_amount=? where goal_id=? ");
+        stm.setInt(2,contribution.goal_id);
+        stm.setDouble(1,getCurrAmount(contribution.goal_id)-amount_contribution);
+        stm.executeUpdate();
         String sql = "UPDATE goal_contribution SET amount_contribution = ?, date = ?, account_id = ?, note = ?, updated_on = ? WHERE goal_contribution_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setDouble(1, contribution.amount_contribution);
@@ -43,6 +64,15 @@ public class GoalContributionService {
                 System.out.println("Goal contribution updated successfully.");
             } else {
                 System.out.println("No goal contribution found with the given ID.");
+            }
+            if(checkGoals(contribution.goal_id, (Date) contribution.updatedOn)){
+                PreparedStatement stmm =connection.prepareStatement("UPDATE goals SET current_amount=? where goal_id=? ");
+                stmm.setInt(2,contribution.goal_id);
+                stmm.setDouble(1,getCurrAmount(contribution.goal_id)+contribution.amount_contribution);
+                stmm.executeUpdate();
+                updateStatus(contribution.goal_id);
+            }else{
+                System.out.println("The goal is already accomplished champ!!");
             }
         } catch (SQLException e) {
             e.printStackTrace();

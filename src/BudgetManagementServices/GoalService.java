@@ -90,4 +90,52 @@ public class GoalService {
                     rs.getString("status"));
         }
     }
+    public static boolean checkGoals(int goal_id,java.sql.Date date) throws SQLException {
+        Connection connection=DbConnection.getConnecton();
+        String query = "SELECT status FROM goals WHERE goal_id = ? and target_date<=?";
+        PreparedStatement pst=connection.prepareStatement(query);
+        pst.setInt(1,goal_id);
+        pst.setDate(2,date);
+        ResultSet rs=pst.executeQuery();
+        String goal_status="";
+        while(rs.next()){
+            goal_status=rs.getString("status");
+        }
+        return goal_status.equalsIgnoreCase("In Progress");
+    }
+
+    public static double getCurrAmount(int goal_id) throws SQLException {
+        Connection connection=DbConnection.getConnecton();
+        String query = "SELECT current_amount FROM goals WHERE goal_id = ? ";
+        PreparedStatement pst=connection.prepareStatement(query);
+        pst.setInt(1,goal_id);
+
+        ResultSet rs=pst.executeQuery();
+        double amount=0;
+        while(rs.next()){
+            amount=rs.getDouble("current_amount");
+        }
+        return amount;
+    }
+
+    public static void updateStatus(int goal_id) throws SQLException {
+        Connection connection=DbConnection.getConnecton();
+        String query = "SELECT current_amount,goal_amount FROM goals WHERE goal_id = ? ";
+        PreparedStatement pst=connection.prepareStatement(query);
+        pst.setInt(1,goal_id);
+
+        ResultSet rs=pst.executeQuery();
+
+        double goal_amount=0,cur_amount=0;
+        while(rs.next()){
+            cur_amount=rs.getDouble("current_amount");
+            goal_amount=rs.getDouble("goal_amount");
+        }
+        if(cur_amount>=goal_amount){
+            PreparedStatement pstt=connection.prepareStatement("UPDATE goals SET status=? where goal_id=?");
+            pstt.setInt(2,goal_id);
+            pstt.setString(1,"Completed");
+            pstt.executeUpdate();
+        }
+    }
 }
