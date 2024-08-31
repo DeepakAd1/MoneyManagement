@@ -11,13 +11,14 @@ import java.sql.SQLException;
 public class UserService {
     public void addUser(Users user) throws SQLException {
         Connection connection= DbConnection.getConnecton();
-        String sql = "INSERT INTO users (user_name, email_id, password, created_on, updated_on) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (user_name, email_id, password,currency_id, created_on, updated_on) VALUES (?, ?, ?, ?, ?,?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, user.user_name);
             stmt.setString(2, user.email_id);
             stmt.setString(3, user.password);
-            stmt.setDate(4, new java.sql.Date(user.createdOn.getTime()));
-            stmt.setDate(5, new java.sql.Date(user.updatedOn.getTime()));
+            stmt.setInt(4,user.currency);
+            stmt.setDate(5, new java.sql.Date(user.createdOn.getTime()));
+            stmt.setDate(6, new java.sql.Date(user.updatedOn.getTime()));
             stmt.executeUpdate();
             System.out.println("User added successfully.");
 
@@ -45,13 +46,14 @@ public class UserService {
 
     public void updateUser(Users user) throws SQLException {
         Connection connection= DbConnection.getConnecton();
-        String sql = "UPDATE users SET user_name = ?, email_id = ?, password = ?, updated_on = ? WHERE user_id = ?";
+        String sql = "UPDATE users SET user_name = ?, email_id = ?, password = ?,currency_id =?, updated_on = ? WHERE user_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, user.user_name);
             stmt.setString(2, user.email_id);
             stmt.setString(3, user.password);
-            stmt.setDate(4, new java.sql.Date(user.updatedOn.getTime()));
-            stmt.setInt(5, user.user_id);
+            stmt.setInt(4,user.currency);
+            stmt.setDate(5, new java.sql.Date(user.updatedOn.getTime()));
+            stmt.setInt(6, user.user_id);
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("User details updated successfully.");

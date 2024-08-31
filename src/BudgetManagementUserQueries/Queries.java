@@ -267,8 +267,7 @@ public class Queries {
 
     public static ResultSet IncomesFromandTo(int userId, java.sql.Date st_date, java.sql.Date ed_date) throws SQLException {
         String query="SELECT "+
-                "    i.income_id," +
-                "    i.amount," +
+                "    i.income_id,i.amount," +
                 "    i.date," +
                 "    a.account_type," +
                 "    ic.category_name" +
@@ -277,10 +276,10 @@ public class Queries {
                 " JOIN " +
                 "    accounts a ON i.account_id = a.account_id" +
                 " JOIN " +
-                "    income_category ic ON i.income_id = ic.income_category_id" +
+                "    income_category ic ON i.income_category_id = ic.income_category_id" +
                 "  WHERE" +
                 "    i.user_id = ?" +
-                "    AND i.date BETWEEN ? AND ?; ";
+                "    AND i.date BETWEEN ? AND ? ;";
         PreparedStatement pst=con.prepareStatement(query);
         pst.setInt(1,userId);
         pst.setDate(2,st_date);

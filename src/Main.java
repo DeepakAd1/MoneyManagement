@@ -37,8 +37,13 @@ public class Main {
             user.user_name = scanner.nextLine();
             System.out.println("Enter your email: ");
             user.email_id = scanner.nextLine();
+            scanner.nextLine();
             System.out.println("Enter your password: ");
             user.password = scanner.nextLine();
+            scanner.nextLine();
+            System.out.println("Enter your currencyId: ");
+            user.currency=scanner.nextInt();
+            scanner.nextLine();
             user.createdOn = new Date();
             user.updatedOn = new Date();
             userService.addUser(user);
@@ -228,7 +233,7 @@ public class Main {
 
             while(ch){
             System.out.println("--------------------------------------------------------");
-            System.out.println(" What would you like to query? ");
+            System.out.println(" What would you like to view? ");
             System.out.println("1. View expenses between two dates");
             System.out.println("2. View daily expenses between two dates");
             System.out.println("3. View monthly expenses by category between two dates");
@@ -384,8 +389,11 @@ public class Main {
         System.out.println("Enter your password: ");
         user.password = scanner.nextLine();
         scanner.nextLine();
-        user.createdOn = new Date();
+
         user.updatedOn = new Date();
+        System.out.println("Enter your currencyId: ");
+        user.currency=scanner.nextInt();
+        scanner.nextLine();
         user.user_id=user_id;
         userService.updateUser(user);
     }
